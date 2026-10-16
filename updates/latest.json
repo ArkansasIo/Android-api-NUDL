@@ -1,0 +1,24 @@
+{
+  "product": "Noodle IDE",
+  "platform": "android",
+  "version": "1.5.0-pre-alpha",
+  "build": "TEST1",
+  "buildId": "NUDL-NOODLE-1.5.0-PRE-ALPHA-TEST1",
+  "minimumAndroid": 29,
+  "channel": "pre-alpha",
+  "releaseTag": "noodle-ide-1.5.0-pre-alpha-test1",
+  "releaseUrl": "https://github.com/ArkansasIo/Android-api-NUDL/releases/tag/noodle-ide-1.5.0-pre-alpha-test1",
+  "apk": {
+    "fileName": "app-debug.apk",
+    "url": "https://github.com/ArkansasIo/Android-api-NUDL/releases/download/noodle-ide-1.5.0-pre-alpha-test1/app-debug.apk",
+    "sha256": "9c289d3dc1b7d8bf8cea2a33320e8ebefd570b291917354278caad3d2f2d14c7"
+  },
+  "artifact": {
+    "name": "Noodle-IDE-1.5.0-pre-alpha-TEST1",
+    "runId": 38845986195,
+    "artifactId": 12022364666,
+    "sha256": "d8dfcd518c09c5e1092413e919084886bce938e309a426246cceb92d12ad0746"
+  },
+  "sourceCommit": "4cc34bf84368b97f3f97304afcecc92e00d2f5f1",
+  "developer": "Stephen Jr"
+}
