@@ -38,39 +38,39 @@ jobs:
       - name: Package Android source
         run: |
           cd ..
-          zip -r "Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip" android README.md .github/workflows
+          zip -r "Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip" android README.md .github/workflows
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
-          name: Noodle-IDE-1.5.0-pre-alpha-TEST1
+          name: Noodle-IDE-1.5.1-pre-alpha-TEST2
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip
+            Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip
           if-no-files-found: error
 
       - name: Publish APK and source package to GitHub Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: noodle-ide-1.5.0-pre-alpha-test1
-          name: Noodle IDE 1.5.0 Pre-Alpha TEST1
+          tag_name: noodle-ide-1.5.1-pre-alpha-test2
+          name: Noodle IDE 1.5.1 Pre-Alpha TEST2
           body: |
-            # Noodle IDE Android — Pre-Alpha TEST1
+            # Noodle IDE Android — Pre-Alpha TEST2
 
             Product: Noodle IDE
-            Version: 1.5.0-pre-alpha
-            Build ID: NUDL-NOODLE-1.5.0-PRE-ALPHA-TEST1
+            Version: 1.5.1-pre-alpha
+            Build ID: NUDL-NOODLE-1.5.1-PRE-ALPHA-TEST2
             Developer: Stephen Jr
             Target: Android / Huawei P20 Pro first
+
+            TEST2 updates the Android application versionCode/versionName and publishes a fresh reproducible APK/source package from main.
 
             Assets:
             - Android debug APK
             - Complete Android source package
-
-            The repository also contains the source tree and reproducible GitHub Actions build.
           files: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip
+            Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
