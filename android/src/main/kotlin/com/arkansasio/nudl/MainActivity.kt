@@ -329,12 +329,3 @@ private fun tokenText(source: String): String {
     val tokens = Regex("[A-Za-z_][A-Za-z0-9_]*|[0-9]+|==|->|[{}()\\[\\],;:+*/=-]").findAll(source).map { it.value }.toList()
     return if (tokens.isEmpty()) "No tokens" else tokens.mapIndexed { i, t -> "%04d  %s".format(i, t) }.joinToString("\n")
 }
-
-private class NudlVmFactory(private val repository: NudlRepository) : androidx.lifecycle.ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NudlViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return NudlViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
-    }
-}
