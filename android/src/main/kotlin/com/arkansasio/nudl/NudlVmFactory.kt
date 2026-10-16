@@ -1,7 +1,6 @@
 package com.arkansasio.nudl
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.arkansasio.nudl.api.NudlRepository
 import com.arkansasio.nudl.api.NudlViewModel
 
