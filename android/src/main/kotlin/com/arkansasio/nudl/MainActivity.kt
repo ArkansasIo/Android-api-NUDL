@@ -139,8 +139,8 @@ private fun Workspace(vm: NudlViewModel) {
         val name = newName.trim().replace('\\', '/')
         if (name.isBlank() || files.any { it.name.equals(name, true) }) return
         val bp = name.endsWith(".nblueprint")
-        val f = WorkspaceFile(name, if (bp) "// Noodle Blueprint: $name" else "fn main() -> i64 {\n    print(\"Hello from Noodle\");\n    return 0;\n}\n", bp)
-        val copy = (files + f).toMutableList()
+        val content = if (bp) "// Noodle Blueprint: $name" else "fn main() -> i64 {\n    print(\"Hello from Noodle\");\n    return 0;\n}\n"
+        val copy = (files + WorkspaceFile(name, content, bp)).toMutableList()
         files = copy
         store.save(copy)
         newDialog = false
@@ -151,8 +151,14 @@ private fun Workspace(vm: NudlViewModel) {
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) {
             val root = JSONObject().apply {
-                put("format", "NUDL-IDE-workspace"); put("version", 1)
-                put("files", JSONArray().apply { files.forEach { f -> put(JSONObject().apply { put("name", f.name); put("content", f.content); put("isBlueprint", f.isBlueprint); put("readOnly", f.readOnly) }) } })
+                put("format", "NUDL-IDE-workspace")
+                put("version", 1)
+                put("files", JSONArray().apply {
+                    files.forEach { f -> put(JSONObject().apply {
+                        put("name", f.name); put("content", f.content)
+                        put("isBlueprint", f.isBlueprint); put("readOnly", f.readOnly)
+                    }) }
+                })
             }
             context.contentResolver.openOutputStream(uri)?.use { it.write(root.toString(2).toByteArray()) }
             terminal = listOf("[Workspace] Exported ${files.size} file(s).", "$ _")
@@ -169,8 +175,14 @@ private fun Workspace(vm: NudlViewModel) {
                 val f = a.getJSONObject(i)
                 WorkspaceFile(f.getString("name"), f.optString("content"), f.optBoolean("isBlueprint"), f.optBoolean("readOnly"))
             }.toMutableList()
-            if (copy.isNotEmpty()) { files = copy; store.save(copy); open(0); terminal = listOf("[Workspace] Imported ${copy.size} file(s).", "$ _") }
-        } catch (_: Exception) { terminal = listOf("[Workspace Import Error] Invalid workspace.", "$ _"); tab = "PROBLEMS" }
+            if (copy.isNotEmpty()) {
+                files = copy; store.save(copy); open(0)
+                terminal = listOf("[Workspace] Imported ${copy.size} file(s).", "$ _")
+            }
+        } catch (_: Exception) {
+            terminal = listOf("[Workspace Import Error] Invalid workspace.", "$ _")
+            tab = "PROBLEMS"
+        }
     }
 
     Column(Modifier.fillMaxSize().background(Navy)) {
@@ -196,7 +208,7 @@ private fun Workspace(vm: NudlViewModel) {
         }
         Row(Modifier.weight(1f).fillMaxWidth()) {
             if (sidebar) FileTree(files, selected, ::open, { newDialog = true }, { tab = it })
-            Editor(state, mode) { s -> vm.setSource(s); save(s) }
+            Editor(state, mode, Modifier.weight(1f)) { s -> vm.setSource(s); save(s) }
             if (inspector) Inspector(state, target)
         }
         BottomDock(tab, { tab = it }, state, terminal) { cmd ->
@@ -221,7 +233,7 @@ private fun Workspace(vm: NudlViewModel) {
 }
 
 @Composable
-private fun ActionButton(label: String, action: () -> Unit) { Button(onClick = action, modifier = Modifier.height(32.dp), shape = RoundedCornerShape(4.dp)) { Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold) } }
+private fun ActionButton(label: String, action: () -> Unit) = Button(onClick = action, modifier = Modifier.height(32.dp), shape = RoundedCornerShape(4.dp)) { Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold) }
 
 @Composable
 private fun FileTree(files: List<WorkspaceFile>, selected: Int, open: (Int) -> Unit, newFile: () -> Unit, tab: (String) -> Unit) {
@@ -238,8 +250,8 @@ private fun FileTree(files: List<WorkspaceFile>, selected: Int, open: (Int) -> U
 }
 
 @Composable
-private fun Editor(state: NudlEditorState, mode: String, change: (String) -> Unit) {
-    Column(Modifier.weight(1f).fillMaxHeight().background(Editor).padding(7.dp)) {
+private fun Editor(state: NudlEditorState, mode: String, modifier: Modifier = Modifier, change: (String) -> Unit) {
+    Column(modifier.fillMaxHeight().background(Editor).padding(7.dp)) {
         Row(Modifier.fillMaxWidth().height(36.dp).background(Panel2).border(1.dp, Border).padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(if (mode == "TEXT") state.filename else "Graph.nblueprint", color = TextPrimary, fontFamily = FontFamily.Monospace, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f)); Text(if (state.running) "● RUNNING" else "● READY", color = if (state.running) Amber else Green, fontSize = 9.sp)
@@ -262,7 +274,7 @@ private fun Blueprint() {
     }
 }
 
-@Composable private fun Node(text: String) { Box(Modifier.size(82.dp, 48.dp).background(Panel2, RoundedCornerShape(6.dp)).border(1.dp, Cyan, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) { Text(text, color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold) } }
+@Composable private fun Node(text: String) = Box(Modifier.size(82.dp, 48.dp).background(Panel2, RoundedCornerShape(6.dp)).border(1.dp, Cyan, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) { Text(text, color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold) }
 
 @Composable
 private fun Inspector(state: NudlEditorState, target: String) {
@@ -277,7 +289,7 @@ private fun Inspector(state: NudlEditorState, target: String) {
     }
 }
 
-@Composable private fun Info(name: String, value: String) { Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) { Text(name, color = TextMuted, fontSize = 9.sp, modifier = Modifier.weight(1f)); Text(value, color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold) } }
+@Composable private fun Info(name: String, value: String) = Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) { Text(name, color = TextMuted, fontSize = 9.sp, modifier = Modifier.weight(1f)); Text(value, color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold) }
 
 @Composable
 private fun BottomDock(tab: String, select: (String) -> Unit, state: NudlEditorState, terminal: List<String>, command: (String) -> Unit) {
@@ -303,9 +315,20 @@ private fun BottomDock(tab: String, select: (String) -> Unit, state: NudlEditorS
     }
 }
 
-@Composable private fun Problems(items: List<NudlDiagnostic>) { if (items.isEmpty()) Text("✓  No syntax or semantic problems detected.", color = Green, fontSize = 10.sp) else items.forEach { val severity = it.severity ?: "error"; Text("${severity.uppercase()}  ${it.message}", color = if (severity.equals("error", true)) Color(0xFFFF8080) else Amber, fontFamily = FontFamily.Monospace, fontSize = 10.sp) } }
-private fun astText(source: String): String { val lines = source.lines().filter { it.contains("fn ") || it.contains("struct ") || it.contains("return ") || it.contains("print(") }; return if (lines.isEmpty()) "Program → empty AST" else "Program\n" + lines.joinToString("\n") { "  └─ ${it.trim()}" } }
-private fun tokenText(source: String): String { val tokens = Regex("[A-Za-z_][A-Za-z0-9_]*|[0-9]+|==|->|[{}()\\[\\],;:+*/=-]").findAll(source).map { it.value }.toList(); return if (tokens.isEmpty()) "No tokens" else tokens.mapIndexed { i, t -> "%04d  %s".format(i, t) }.joinToString("\n") }
+@Composable private fun Problems(items: List<NudlDiagnostic>) {
+    if (items.isEmpty()) Text("✓  No syntax or semantic problems detected.", color = Green, fontSize = 10.sp)
+    else items.forEach { val severity = it.severity ?: "error"; Text("${severity.uppercase()}  ${it.message}", color = if (severity.equals("error", true)) Color(0xFFFF8080) else Amber, fontFamily = FontFamily.Monospace, fontSize = 10.sp) }
+}
+
+private fun astText(source: String): String {
+    val lines = source.lines().filter { it.contains("fn ") || it.contains("struct ") || it.contains("return ") || it.contains("print(") }
+    return if (lines.isEmpty()) "Program → empty AST" else "Program\n" + lines.joinToString("\n") { "  └─ ${it.trim()}" }
+}
+
+private fun tokenText(source: String): String {
+    val tokens = Regex("[A-Za-z_][A-Za-z0-9_]*|[0-9]+|==|->|[{}()\\[\\],;:+*/=-]").findAll(source).map { it.value }.toList()
+    return if (tokens.isEmpty()) "No tokens" else tokens.mapIndexed { i, t -> "%04d  %s".format(i, t) }.joinToString("\n")
+}
 
 private class NudlVmFactory(private val repository: NudlRepository) : androidx.lifecycle.ViewModelProvider.Factory {
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
