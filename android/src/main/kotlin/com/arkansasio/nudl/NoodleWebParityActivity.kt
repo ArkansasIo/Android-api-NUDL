@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
@@ -40,7 +41,7 @@ class NoodleWebParityActivity : ComponentActivity() {
 
 data class ParityNode(val id: String, val title: String, val type: String, val x: Float, val y: Float)
 
-auto: @Composable
+@Composable
 private fun NoodleParityApp() {
     val repo = remember { NudlRepository(NudlServiceFactory.create()) }
     val vm: NudlViewModel = viewModel(factory = NudlVmFactory(repo))
