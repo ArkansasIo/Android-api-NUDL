@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -74,8 +75,9 @@ private fun NoodleParityApp() {
     val vm: NudlViewModel = viewModel(factory = ParityVmFactory(repo))
     var blueprint by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf("main.nudl") }
-    var sidebar by remember { mutableStateOf(true) }
-    var inspector by remember { mutableStateOf(true) }
+    val compact = LocalConfiguration.current.screenWidthDp < 600
+    var sidebar by remember(compact) { mutableStateOf(!compact) }
+    var inspector by remember(compact) { mutableStateOf(!compact) }
     var bottom by remember { mutableStateOf("TERMINAL") }
     var target by remember { mutableStateOf("C++") }
     var nodes by remember { mutableStateOf(parityNodes()) }
@@ -83,7 +85,7 @@ private fun NoodleParityApp() {
 
     Column(Modifier.fillMaxSize().background(P0)) {
         Row(
-            Modifier.fillMaxWidth().height(56.dp).background(P1).border(1.dp, PB).padding(8.dp),
+            Modifier.fillMaxWidth().height(56.dp).background(P1).border(1.dp, PB).horizontalScroll(rememberScrollState()).padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -98,9 +100,8 @@ private fun NoodleParityApp() {
             listOf("File", "Edit", "Build", "View", "Tools", "Help").forEach { menu ->
                 TextButton(onClick = { bottom = menu.uppercase() }) { Text("$menu ▾", color = WT, fontSize = 10.sp) }
             }
-            Spacer(Modifier.weight(1f))
-            TextButton(onClick = { sidebar = !sidebar }) { Text("TREE", color = CY, fontSize = 9.sp) }
-            TextButton(onClick = { inspector = !inspector }) { Text("INSPECTOR", color = CY, fontSize = 9.sp) }
+            TextButton(onClick = { sidebar = !sidebar; if (!sidebar) inspector = false }) { Text(if (sidebar) "EDITOR" else "TREE", color = CY, fontSize = 9.sp) }
+            TextButton(onClick = { inspector = !inspector; if (!inspector) sidebar = false }) { Text(if (inspector) "EDITOR" else "INSPECTOR", color = CY, fontSize = 9.sp) }
         }
 
         Row(
@@ -122,7 +123,31 @@ private fun NoodleParityApp() {
         }
 
         Row(Modifier.weight(1f).fillMaxWidth()) {
-            if (sidebar) {
+            if (compact && sidebar) {
+                Column(Modifier.fillMaxSize().background(P1).verticalScroll(rememberScrollState()).padding(12.dp)) {
+                    Text("WORKSPACE FILES", color = MU, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    listOf("main.nudl", "math.nudl", "Graph.nblueprint", "README.md").forEach { file ->
+                        TextButton(onClick = { selected = file; blueprint = file.endsWith(".nblueprint"); sidebar = false }) {
+                            Text(if (selected == file) "▸ $file" else file, color = if (selected == file) CY else WT, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
+                        }
+                    }
+                    Text("PANELS", color = MU, fontSize = 10.sp, modifier = Modifier.padding(top = 12.dp))
+                    listOf("TERMINAL", "OUTPUT", "PROBLEMS", "CONSOLE", "TARGET", "AST", "TOKENS").forEach { tab ->
+                        TextButton(onClick = { bottom = tab; sidebar = false }) { Text(tab, color = if (bottom == tab) CY else WT, fontSize = 12.sp) }
+                    }
+                }
+            } else if (compact && inspector) {
+                Column(Modifier.fillMaxSize().background(P1).verticalScroll(rememberScrollState()).padding(14.dp)) {
+                    Text("INSPECTOR", color = MU, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(14.dp))
+                    Info("FILE", selected); Info("TARGET", target)
+                    Info("STATE", if (state.running) "RUNNING" else "READY")
+                    Info("DIAGNOSTICS", state.diagnostics.size.toString())
+                    Info("BLUEPRINT NODES", nodes.size.toString())
+                    Button(onClick = { inspector = false }) { Text("BACK TO EDITOR") }
+                }
+            } else {
+            if (!compact && sidebar) {
                 Column(
                     Modifier.width(205.dp).fillMaxHeight().background(P1).border(1.dp, PB)
                         .verticalScroll(rememberScrollState()).padding(8.dp)
@@ -147,7 +172,7 @@ private fun NoodleParityApp() {
                 ParityTextEditor(state, vm, Modifier.weight(1f))
             }
 
-            if (inspector) {
+            if (!compact && inspector) {
                 Column(Modifier.width(190.dp).fillMaxHeight().background(P1).border(1.dp, PB).padding(9.dp)) {
                     Text("INSPECTOR", color = MU, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
@@ -163,7 +188,7 @@ private fun NoodleParityApp() {
             }
         }
 
-        Column(Modifier.fillMaxWidth().height(145.dp).background(P1).border(1.dp, PB)) {
+        Column(Modifier.fillMaxWidth().height(if (compact) 108.dp else 145.dp).background(P1).border(1.dp, PB)) {
             Row(Modifier.fillMaxWidth().height(31.dp).horizontalScroll(rememberScrollState())) {
                 listOf("TERMINAL", "OUTPUT", "PROBLEMS", "CONSOLE", "TARGET", "AST", "TOKENS").forEach { tab ->
                     TextButton(onClick = { bottom = tab }) {
