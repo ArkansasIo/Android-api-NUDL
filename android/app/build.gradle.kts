@@ -12,12 +12,18 @@ android {
         applicationId = "com.arkansasio.nudl"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
+        versionCode = 4
         versionName = "1.5.2-pre-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        // CI APKs use a distinct package ID so they can be installed beside
+        // an older production/debug Noodle build signed with another key.
+        debug {
+            applicationIdSuffix = ".test"
+            versionNameSuffix = "-test"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
