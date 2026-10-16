@@ -90,7 +90,7 @@ jobs:
         run: |
           set -e
           test -s app/build/outputs/apk/debug/app-debug.apk
-          sha256sum app/build/outputs/apk/debug/app-debug.apk | tee apk.sha256
+          sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/apk.sha256
           ls -lh app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK artifact
@@ -99,7 +99,7 @@ jobs:
           name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-apk
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            android/apk.sha256
+            android/app/build/outputs/apk/debug/apk.sha256
           if-no-files-found: error
 
   android-source-package:
