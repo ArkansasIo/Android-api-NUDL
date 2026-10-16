@@ -10,21 +10,26 @@
   "releaseUrl": "https://github.com/ArkansasIo/Android-api-NUDL/releases/tag/noodle-ide-1.5.2-pre-alpha-test3",
   "apk": {
     "fileName": "app-debug.apk",
-    "url": "https://github.com/ArkansasIo/Android-api-NUDL/actions/runs/38950345387",
-    "sha256": null,
-    "note": "Download the APK from the workflow artifact until the GitHub Release is published."
+    "url": "https://github.com/ArkansasIo/Android-api-NUDL/releases/download/noodle-ide-1.5.2-pre-alpha-test3/app-debug.apk",
+    "sha256": "14a326eee5ba3a97b9f5cb352ebfd6d1f94d0a8201df815fb28ecf29871a1b4f"
+  },
+  "checksum": {
+    "fileName": "apk.sha256",
+    "url": "https://github.com/ArkansasIo/Android-api-NUDL/releases/download/noodle-ide-1.5.2-pre-alpha-test3/apk.sha256",
+    "sha256": "14a326eee5ba3a97b9f5cb352ebfd6d1f94d0a8201df815fb28ecf29871a1b4f",
+    "scope": "app-debug.apk"
   },
   "artifact": {
     "name": "Noodle-IDE-1.5.2-pre-alpha-TEST3-apk",
-    "runId": 38950345387,
-    "artifactId": 12068296263,
-    "sha256": "0ec0995ef578dfdf303afa4abd300410f140e7915372d02723424f388767f954",
-    "sizeBytes": 9960847,
-    "expiresAt": "2027-01-14T18:50:00Z",
+    "runId": 38950709108,
+    "artifactId": 12069310428,
+    "sha256": "59e4c578fd9a54289120f48199e87ca1c06065b73e191f549d4be64bca0dd78f",
+    "sizeBytes": 9960826,
+    "expiresAt": "2027-01-14T18:52:49Z",
     "digestScope": "GitHub Actions artifact ZIP, not the APK inside the ZIP"
   },
-  "sourceCommit": "5318e437d9b21ab2e6cec1a40d02c546a443fe45",
+  "sourceCommit": "703742cd26d6eceaff6a3791c28c6008ea7979e2",
   "developer": "Stephen Jr",
-  "buildStatus": "apk-build-success",
-  "note": "The Android APK built successfully in GitHub Actions. The automated release-publish step is still being checked."
+  "buildStatus": "release-published",
+  "note": "The Android debug APK built, its checksum was verified, and the TEST3 GitHub release was published by CI."
 }
