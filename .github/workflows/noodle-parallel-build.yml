@@ -16,6 +16,7 @@ permissions:
 env:
   NUDL_VERSION: 1.5.2-pre-alpha
   NUDL_BUILD_ID: NUDL-NOODLE-1.5.2-PRE-ALPHA-TEST3
+  GRADLE_VERSION: 8.11.1
 
 jobs:
   source-validation:
@@ -26,11 +27,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate repository structure
         run: |
+          set -e
           test -f android/settings.gradle.kts
           test -f android/build.gradle.kts
+          test -f android/gradle.properties
           test -f android/app/build.gradle.kts
           test -f android/app/src/main/AndroidManifest.xml
-          test -f android/gradle/wrapper/gradle-wrapper.properties
+          test -d android/app/src/main/java || true
+          test -d android/app/src/main/kotlin || true
           echo "Repository structure OK"
 
   android-build:
@@ -54,13 +58,16 @@ jobs:
 
       - name: Install required Android SDK packages
         run: |
+          set -e
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
-      - name: Configure Gradle cache
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
           cache-read-only: false
+          cache-overwrite-existing: true
 
       - name: Verify AndroidX configuration
         working-directory: android
@@ -71,12 +78,13 @@ jobs:
       - name: Build debug APK
         working-directory: android
         run: |
-          chmod +x gradlew
-          ./gradlew :app:assembleDebug --parallel --build-cache --no-daemon --stacktrace
+          gradle --version
+          gradle :app:assembleDebug --parallel --build-cache --no-daemon --stacktrace
 
       - name: Verify APK
         working-directory: android
         run: |
+          set -e
           test -s app/build/outputs/apk/debug/app-debug.apk
           sha256sum app/build/outputs/apk/debug/app-debug.apk | tee apk.sha256
           ls -lh app/build/outputs/apk/debug/app-debug.apk
@@ -98,6 +106,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Create source package
         run: |
+          set -e
           zip -r "Noodle-IDE-${NUDL_VERSION}-TEST3-android-source.zip" android README.md .github/workflows
       - name: Upload source package
         uses: actions/upload-artifact@v4
@@ -124,6 +133,15 @@ jobs:
           name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-source
           path: release/source
 
+      - name: Verify release files
+        run: |
+          set -e
+          test -s release/apk/app-debug.apk
+          test -s release/apk/apk.sha256
+          test -s "release/source/Noodle-IDE-${NUDL_VERSION}-TEST3-android-source.zip"
+          cd release/apk
+          sha256sum -c apk.sha256
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -138,7 +156,9 @@ jobs:
             Developer: Stephen Jr
             Target: Android 8.0+ / ARM64-compatible application
 
-            TEST3 fixes the Android SDK CI failure and bumps the Android application version code. The APK is a fresh debug-signed sideload build.
+            TEST3 fixes the Android SDK CI configuration and builds the Android application with Gradle 8.11.1 and JDK 17.
+
+            The APK is a debug-signed sideload build. Android updates require the same signing certificate; if a previous CI APK was signed by a different runner, uninstall that previous APK before installing TEST3.
           files: |
             release/apk/app-debug.apk
             release/apk/apk.sha256
