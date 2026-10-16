@@ -94,8 +94,9 @@ jobs:
         run: |
           set -e
           test -s app/build/outputs/apk/debug/app-debug.apk
-          sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/apk.sha256
-          ls -lh app/build/outputs/apk/debug/app-debug.apk
+          cd app/build/outputs/apk/debug
+          sha256sum app-debug.apk | tee apk.sha256
+          ls -lh app-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
