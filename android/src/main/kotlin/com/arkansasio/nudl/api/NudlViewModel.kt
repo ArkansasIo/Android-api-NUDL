@@ -11,6 +11,10 @@ class NudlViewModel(private val repository: NudlRepository) : ViewModel() {
     private val _state = MutableStateFlow(NudlEditorState())
     val state: StateFlow<NudlEditorState> = _state.asStateFlow()
 
+    fun openFile(filename: String, source: String) {
+        _state.value = NudlEditorState(filename = filename, source = source)
+    }
+
     fun setSource(source: String) { _state.value = _state.value.copy(source = source) }
     fun analyze() { execute { repository.analyze(_state.value.source, _state.value.filename) } }
     fun run() { execute { repository.run(_state.value.source, _state.value.filename) } }
