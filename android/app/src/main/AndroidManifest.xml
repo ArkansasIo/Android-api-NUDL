@@ -9,12 +9,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NUDL">
         <activity
-            android:name="com.arkansasio.nudl.WebStyleActivity"
+            android:name="com.arkansasio.nudl.NoodleWebParityActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.arkansasio.nudl.WebStyleActivity" android:exported="false" />
     </application>
 </manifest>
