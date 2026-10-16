@@ -10,16 +10,21 @@
   "releaseUrl": "https://github.com/ArkansasIo/Android-api-NUDL/releases/tag/noodle-ide-1.5.2-pre-alpha-test3",
   "apk": {
     "fileName": "app-debug.apk",
-    "url": "https://github.com/ArkansasIo/Android-api-NUDL/releases/download/noodle-ide-1.5.2-pre-alpha-test3/app-debug.apk",
-    "sha256": null
+    "url": "https://github.com/ArkansasIo/Android-api-NUDL/actions/runs/38950345387",
+    "sha256": null,
+    "note": "Download the APK from the workflow artifact until the GitHub Release is published."
   },
   "artifact": {
     "name": "Noodle-IDE-1.5.2-pre-alpha-TEST3-apk",
-    "runId": null,
-    "artifactId": null,
-    "sha256": null
+    "runId": 38950345387,
+    "artifactId": 12068296263,
+    "sha256": "0ec0995ef578dfdf303afa4abd300410f140e7915372d02723424f388767f954",
+    "sizeBytes": 9960847,
+    "expiresAt": "2027-01-14T18:50:00Z",
+    "digestScope": "GitHub Actions artifact ZIP, not the APK inside the ZIP"
   },
-  "sourceCommit": "pending",
+  "sourceCommit": "5318e437d9b21ab2e6cec1a40d02c546a443fe45",
   "developer": "Stephen Jr",
-  "note": "This file identifies the intended build. APK checksum and workflow run identifiers are populated after a successful release build."
+  "buildStatus": "apk-build-success",
+  "note": "The Android APK built successfully in GitHub Actions. The automated release-publish step is still being checked."
 }
