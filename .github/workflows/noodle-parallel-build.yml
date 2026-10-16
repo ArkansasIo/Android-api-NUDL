@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: noodle-android-main
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -43,6 +43,8 @@ jobs:
 
   android-build:
     name: Android APK
+    # Do not cancel in-flight builds on every follow-up commit; CI results are
+    # needed to validate the current source tree while rapid fixes are landing.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
