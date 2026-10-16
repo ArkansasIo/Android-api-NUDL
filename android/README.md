@@ -27,8 +27,9 @@ The Android application keeps the Noodle web-IDE layout while using native Andro
 - inspector panel
 - output/problems/console/AST/tokens dock
 - C++/TypeScript/Python target selection
-- NUDL API client, repository and ViewModel
-- persistent Android workspace storage
+- NUDL API client, repository and ViewModel (lex, parse, analyze, run, generate)
+- API connection/read/write timeouts and optional HTTP request logging
+- persistent workspace JSON storage in the app-private files directory
 - JSON workspace import/export
 - Android launcher icon and adaptive icon resources
 
