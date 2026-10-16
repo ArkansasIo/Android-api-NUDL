@@ -186,6 +186,7 @@ private fun NoodleParityApp() {
                     Text(if (blueprint) "interactive" else "text mode", color = CY, fontSize = 9.sp)
                 }
             }
+            }
         }
 
         Column(Modifier.fillMaxWidth().height(if (compact) 108.dp else 145.dp).background(P1).border(1.dp, PB)) {
