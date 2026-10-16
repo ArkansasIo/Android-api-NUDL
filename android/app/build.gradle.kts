@@ -12,8 +12,8 @@ android {
         applicationId = "com.arkansasio.nudl"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.5.1-pre-alpha"
+        versionCode = 3
+        versionName = "1.5.2-pre-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
