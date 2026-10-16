@@ -35,27 +35,42 @@ jobs:
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon
 
+      - name: Package Android source
+        run: |
+          cd ..
+          zip -r "Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip" android README.md .github/workflows
+
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
           name: Noodle-IDE-1.5.0-pre-alpha-TEST1
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip
           if-no-files-found: error
 
-      - name: Publish APK to GitHub Release
+      - name: Publish APK and source package to GitHub Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: noodle-ide-1.5.0-pre-alpha-test1
           name: Noodle IDE 1.5.0 Pre-Alpha TEST1
           body: |
-            Noodle IDE Android APK
+            # Noodle IDE Android — Pre-Alpha TEST1
 
             Product: Noodle IDE
             Version: 1.5.0-pre-alpha
-            Build: NUDL-NOODLE-1.5.0-PRE-ALPHA-TEST1
+            Build ID: NUDL-NOODLE-1.5.0-PRE-ALPHA-TEST1
             Developer: Stephen Jr
-            Target: Android / P20 Pro first
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+            Target: Android / Huawei P20 Pro first
+
+            Assets:
+            - Android debug APK
+            - Complete Android source package
+
+            The repository also contains the source tree and reproducible GitHub Actions build.
+          files: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            Noodle-IDE-1.5.0-pre-alpha-TEST1-android-source.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
