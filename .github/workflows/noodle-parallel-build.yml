@@ -1,0 +1,140 @@
+name: Noodle IDE Parallel Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: noodle-android-main
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  NUDL_VERSION: 1.5.1-pre-alpha
+  NUDL_BUILD_ID: NUDL-NOODLE-1.5.1-PRE-ALPHA-TEST2
+
+jobs:
+  # Independent validation starts immediately and can run alongside the Android build.
+  source-validation:
+    name: Source validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate repository structure
+        run: |
+          test -f android/settings.gradle.kts
+          test -f android/build.gradle.kts
+          test -f android/app/build.gradle.kts
+          test -f android/app/src/main/AndroidManifest.xml
+          test -f android/gradlew
+          echo "Repository structure OK"
+
+  android-build:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configure Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: Verify AndroidX configuration
+        working-directory: android
+        run: |
+          grep -q '^android.useAndroidX=true' gradle.properties
+          grep -q '^android.nonTransitiveRClass=true' gradle.properties
+
+      - name: Build debug APK in parallel mode
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --parallel --build-cache --stacktrace
+
+      - name: Verify APK
+        working-directory: android
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          sha256sum app/build/outputs/apk/debug/app-debug.apk | tee apk.sha256
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-apk
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/apk.sha256
+          if-no-files-found: error
+
+  android-source-package:
+    name: Android source package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create source package
+        run: |
+          zip -r "Noodle-IDE-${NUDL_VERSION}-TEST2-android-source.zip" android README.md .github/workflows
+      - name: Upload source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-source
+          path: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-android-source.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: [source-validation, android-build, android-source-package]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-apk
+          path: release/apk
+
+      - name: Download source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-source
+          path: release/source
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: noodle-ide-${{ env.NUDL_VERSION }}-test2
+          name: Noodle IDE 1.5.1 Pre-Alpha TEST2
+          body: |
+            # Noodle IDE Android — Pre-Alpha TEST2
+
+            Product: Noodle IDE
+            Version: ${{ env.NUDL_VERSION }}
+            Build ID: ${{ env.NUDL_BUILD_ID }}
+            Developer: Stephen Jr
+            Target: Android / Huawei P20 Pro first
+
+            This release uses the authoritative parallel CI pipeline. Independent source validation, Android compilation, and source packaging run concurrently; release publication waits for all required jobs.
+          files: |
+            release/apk/app-debug.apk
+            release/apk/apk.sha256
+            release/source/Noodle-IDE-${{ env.NUDL_VERSION }}-TEST2-android-source.zip
+          generate_release_notes: false
