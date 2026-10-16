@@ -15,7 +15,7 @@ permissions:
 
 env:
   NUDL_VERSION: 1.5.2-pre-alpha
-  NUDL_BUILD_ID: NUDL-NOODLE-1.5.2-PRE-ALPHA-TEST3
+  NUDL_BUILD_ID: NUDL-NOODLE-1.5.2-PRE-ALPHA-TEST4
   GRADLE_VERSION: 8.11.1
 
 jobs:
@@ -101,7 +101,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-apk
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-apk
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/apk/debug/apk.sha256
@@ -116,12 +116,12 @@ jobs:
       - name: Create source package
         run: |
           set -e
-          zip -r "Noodle-IDE-${NUDL_VERSION}-TEST3-android-source.zip" android README.md .github/workflows
+          zip -r "Noodle-IDE-${NUDL_VERSION}-TEST4-android-source.zip" android README.md .github/workflows
       - name: Upload source package
         uses: actions/upload-artifact@v4
         with:
-          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-source
-          path: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-android-source.zip
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-source
+          path: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-android-source.zip
           if-no-files-found: error
 
   release:
@@ -133,13 +133,13 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v4
         with:
-          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-apk
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-apk
           path: release/apk
 
       - name: Download source artifact
         uses: actions/download-artifact@v4
         with:
-          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-source
+          name: Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-source
           path: release/source
 
       - name: Verify release files
@@ -147,17 +147,17 @@ jobs:
           set -e
           test -s release/apk/app-debug.apk
           test -s release/apk/apk.sha256
-          test -s "release/source/Noodle-IDE-${NUDL_VERSION}-TEST3-android-source.zip"
+          test -s "release/source/Noodle-IDE-${NUDL_VERSION}-TEST4-android-source.zip"
           cd release/apk
           sha256sum -c apk.sha256
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: noodle-ide-${{ env.NUDL_VERSION }}-test3
-          name: Noodle IDE 1.5.2 Pre-Alpha TEST3
+          tag_name: noodle-ide-${{ env.NUDL_VERSION }}-test4
+          name: Noodle IDE 1.5.2 Pre-Alpha TEST4
           body: |
-            # Noodle IDE Android — Pre-Alpha TEST3
+            # Noodle IDE Android — Pre-Alpha TEST4
 
             Product: Noodle IDE
             Version: ${{ env.NUDL_VERSION }}
@@ -165,11 +165,11 @@ jobs:
             Developer: Stephen Jr
             Target: Android 8.0+ / ARM64-compatible application
 
-            TEST3 fixes the Android SDK CI configuration and builds the Android application with Gradle 8.11.1 and JDK 17.
+            TEST4 builds the Android application with Gradle 8.11.1 and JDK 17. The debug APK uses application ID com.arkansasio.nudl.test so it can be installed alongside an existing Noodle install, avoiding signature conflicts during testing.
 
-            The APK is a debug-signed sideload build. Android updates require the same signing certificate; if a previous CI APK was signed by a different runner, uninstall that previous APK before installing TEST3.
+            The APK is a debug-signed sideload build. Android updates require the same signing certificate; if a previous CI APK was signed by a different runner, uninstall that previous APK before installing TEST4.
           files: |
             release/apk/app-debug.apk
             release/apk/apk.sha256
-            release/source/Noodle-IDE-${{ env.NUDL_VERSION }}-TEST3-android-source.zip
+            release/source/Noodle-IDE-${{ env.NUDL_VERSION }}-TEST4-android-source.zip
           generate_release_notes: false
