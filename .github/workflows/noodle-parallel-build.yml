@@ -36,6 +36,8 @@ jobs:
           test -f android/src/main/kotlin/com/arkansasio/nudl/MainActivity.kt
           test -f android/src/main/kotlin/com/arkansasio/nudl/NudleVmFactory.kt || true
           test -f android/src/main/kotlin/com/arkansasio/nudl/NudlVmFactory.kt
+          grep -q '^class NudlVmFactory' android/src/main/kotlin/com/arkansasio/nudl/NudlVmFactory.kt
+          grep -q 'NudlVmFactory(repository)' android/src/main/kotlin/com/arkansasio/nudl/WebStyleActivity.kt
           test -f android/src/main/kotlin/com/arkansasio/nudl/api/NudlApiService.kt
           test -f android/src/main/kotlin/com/arkansasio/nudl/api/NudlViewModel.kt
           test -d android/app/src/main/res
