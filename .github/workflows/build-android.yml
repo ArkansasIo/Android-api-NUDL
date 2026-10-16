@@ -1,76 +1,14 @@
-name: Build Noodle IDE Android APK
+name: Build Noodle IDE Android APK (legacy manual)
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'android/**'
-      - '.github/workflows/build-android.yml'
 
 permissions:
   contents: write
-  actions: read
 
 jobs:
-  build-android:
+  legacy-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: android
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
-
-      - name: Build debug APK
-        run: gradle :app:assembleDebug --no-daemon
-
-      - name: Package Android source
-        run: |
-          cd ..
-          zip -r "Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip" android README.md .github/workflows
-
-      - name: Archive APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Noodle-IDE-1.5.1-pre-alpha-TEST2
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip
-          if-no-files-found: error
-
-      - name: Publish APK and source package to GitHub Release
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: noodle-ide-1.5.1-pre-alpha-test2
-          name: Noodle IDE 1.5.1 Pre-Alpha TEST2
-          body: |
-            # Noodle IDE Android — Pre-Alpha TEST2
-
-            Product: Noodle IDE
-            Version: 1.5.1-pre-alpha
-            Build ID: NUDL-NOODLE-1.5.1-PRE-ALPHA-TEST2
-            Developer: Stephen Jr
-            Target: Android / Huawei P20 Pro first
-
-            TEST2 updates the Android application versionCode/versionName and publishes a fresh reproducible APK/source package from main.
-
-            Assets:
-            - Android debug APK
-            - Complete Android source package
-          files: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            Noodle-IDE-1.5.1-pre-alpha-TEST2-android-source.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Legacy workflow notice
+        run: echo "Use .github/workflows/noodle-parallel-build.yml for the authoritative parallel build."
