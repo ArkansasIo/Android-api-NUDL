@@ -28,6 +28,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Verify AndroidX configuration
+        working-directory: android
+        run: |
+          test "$(grep -E '^android.useAndroidX=' gradle.properties | cut -d= -f2)" = "true"
+          test "$(grep -E '^android.nonTransitiveRClass=' gradle.properties | cut -d= -f2)" = "true"
+
       - name: Build debug APK
         working-directory: android
         run: |
